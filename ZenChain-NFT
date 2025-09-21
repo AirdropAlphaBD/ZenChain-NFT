@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZenChain NFT Marketplace</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-green: #10B981;
+            --dark-green: #047857;
+            --light-green: #A7F3D0;
+            --background: #064E3B;
+            --card-bg: #ECFDF5;
+            --text-dark: #1F2937;
+            --text-light: #F9FAFB;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: var(--background);
+            color: var(--text-light);
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid var(--primary-green);
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo img {
+            height: 40px;
+            width: auto;
+        }
+        
+        .logo h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        nav a {
+            color: var(--text-light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+        
+        nav a:hover {
+            color: var(--primary-green);
+        }
+        
+        .wallet-connect {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .connect-btn {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .connect-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .create-btn {
+            background-color: var(--dark-green);
+            color: white;
+            border: none;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .create-btn:hover {
+            background-color: var(--primary-green);
+        }
+        
+        .wallet-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .wallet-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .wallet-content h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .wallet-options {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .wallet-option {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background-color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 1px solid #ddd;
+        }
+        
+        .wallet-option:hover {
+            transform: translateY(-2px);
+            border-color: var(--primary-green);
+        }
+        
+        .wallet-option img {
+            width: 30px;
+            height: 30px;
+            margin-right: 1rem;
+        }
+        
+        .wallet-option span {
+            font-weight: 600;
+            color: var(--text-dark);
+        }
+        
+        .close-modal {
+            margin-top: 1.5rem;
+            background-color: #ef4444;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        
+        .create-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .create-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 500px;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .create-content h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+        
+        .form-group input, .form-group textarea, .form-group select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 1rem;
+            color: var(--text-dark);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .create-submit {
+            width: 100%;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 1rem;
+        }
+        
+        .create-submit:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .minting-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .minting-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 400px;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .minting-content h2 {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+        
+        .loader {
+            border: 5px solid var(--light-green);
+            border-top: 5px solid var(--primary-green);
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .success-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .success-content {
+            background-color: var(--card-bg);
+            padding: 2rem;
+            border-radius: 12px;
+            width: 450px;
+            max-width: 90%;
+            text-align: center;
+        }
+        
+        .success-content h2 {
+            color: var(--text-dark);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+        
+        .success-icon {
+            font-size: 3rem;
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+        }
+        
+        .success-content p {
+            color: var(--text-dark);
+            margin-bottom: 1.5rem;
+        }
+        
+        .success-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .success-btn {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .success-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .social-share {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .social-share a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-green);
+            color: white;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .social-share a:hover {
+            background-color: var(--dark-green);
+        }
+        
+        .hero {
+            text-align: center;
+            padding: 3rem 1rem;
+            background: linear-gradient(to bottom, var(--background), #022c22);
+        }
+        
+        .hero h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--primary-green);
+        }
+        
+        .hero p {
+            font-size: 1.2rem;
+            max-width: 800px;
+            margin: 0 auto 2rem;
+            color: var(--light-green);
+        }
+        
+        .collection-filters {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .filter-btn {
+            background-color: transparent;
+            color: var(--text-light);
+            border: 1px solid var(--primary-green);
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .filter-btn.active, .filter-btn:hover {
+            background-color: var(--primary-green);
+            color: white;
+        }
+        
+        .nft-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .nft-card {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .nft-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .nft-image {
+            width: 100%;
+            height: 280px;
+            object-fit: cover;
+            border-bottom: 2px solid var(--primary-green);
+        }
+        
+        .nft-info {
+            padding: 1rem;
+        }
+        
+        .nft-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .nft-price {
+            display: flex;
+            align-items: center;
+            color: var(--dark-green);
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+        
+        .nft-price img {
+            width: 20px;
+            height: 20px;
+            margin-right: 0.5rem;
+        }
+        
+        .mint-btn {
+            width: 100%;
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 0.7rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .mint-btn:hover {
+            background-color: var(--dark-green);
+        }
+        
+        footer {
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+            background-color: rgba(0, 0, 0, 0.4);
+            border-top: 2px solid var(--primary-green);
+        }
+        
+        .footer-logo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+        
+        .footer-logo img {
+            height: 30px;
+            width: auto;
+        }
+        
+        .footer-logo span {
+            font-weight: 700;
+            color: var(--primary-green);
+        }
+        
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1rem 0;
+        }
+        
+        .social-links a {
+            color: var(--text-light);
+            font-size: 1.5rem;
+            transition: color 0.3s;
+        }
+        
+        .social-links a:hover {
+            color: var(--primary-green);
+        }
+        
+        .copyright {
+            color: var(--light-green);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                gap: 1rem;
+                padding: 1rem;
+            }
+            
+            nav ul {
+                gap: 1rem;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            .nft-grid {
+                grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+                padding: 1rem;
+                gap: 1rem;
+            }
+            
+            .hero h2 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header with logo and navigation -->
+    <header>
+        <div class="logo">
+            <img src="https://i.postimg.cc/3Jq01tBD/1758434912308.png" alt="ZenChain Marketplace Logo">
+            <h1>ZenChain NFT</h1>
+        </div>
+        
+        <nav>
+            <ul>
+                <li><a href="#" class="active">Home</a></li>
+                <li><a href="#">Collections</a></li>
+                <li><a href="#">Stats</a></li>
+                <li><a href="#">Activity</a></li>
+                <li><a href="#">How to Buy</a></li>
+            </ul>
+        </nav>
+        
+        <div class="wallet-connect">
+            <button class="create-btn" id="createNftBtn">Create</button>
+            <button class="connect-btn" id="connectWalletBtn">Connect Wallet</button>
+        </div>
+    </header>
+    
+    <!-- Wallet Connection Modal -->
+    <div class="wallet-modal" id="walletModal">
+        <div class="wallet-content">
+            <h2>Connect Your Wallet</h2>
+            <div class="wallet-options">
+                <div class="wallet-option" id="metamaskOption">
+                    <img src="https://i.postimg.cc/3wT5HH15/Meta-Mask-Fox-svg.png" alt="MetaMask Logo">
+                    <span>MetaMask</span>
+                </div>
+                <div class="wallet-option" id="blockwalletOption">
+                    <img src="https://i.postimg.cc/y8rjFhJf/664ae729b3c1f7bff060eca3-OG-Image.png" alt="BlockWallet Logo">
+                    <span>Block Wallet</span>
+                </div>
+            </div>
+            <button class="close-modal" id="closeModal">Close</button>
+        </div>
+    </div>
+    
+    <!-- Create NFT Modal -->
+    <div class="create-modal" id="createModal">
+        <div class="create-content">
+            <h2>Create New NFT</h2>
+            <form id="nftForm">
+                <div class="form-group">
+                    <label for="nftName">NFT Name</label>
+                    <input type="text" id="nftName" placeholder="Enter NFT name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nftDescription">Description</label>
+                    <textarea id="nftDescription" placeholder="Describe your NFT" required></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nftImage">Upload Image</label>
+                    <input type="file" id="nftImage" accept="image/*" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nftPrice">Price (ZTC)</label>
+                    <input type="number" id="nftPrice" min="1" placeholder="Enter price in ZTC" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nftCollection">Collection</label>
+                    <select id="nftCollection" required>
+                        <option value="">Select a collection</option>
+                        <option value="art">Art</option>
+                        <option value="photography">Photography</option>
+                        <option value="collectibles">Collectibles</option>
+                        <option value="digital">Digital Art</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nftProperties">Properties (comma separated)</label>
+                    <input type="text" id="nftProperties" placeholder="e.g. Rare, Digital, Animated">
+                </div>
+                
+                <button type="submit" class="create-submit">Create NFT</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Minting Process Modal -->
+    <div class="minting-modal" id="mintingModal">
+        <div class="minting-content">
+            <h2>Minting in Progress</h2>
+            <div class="loader"></div>
+            <p>Please wait while we process your NFT minting transaction...</p>
+        </div>
+    </div>
+    
+    <!-- Success Modal -->
+    <div class="success-modal" id="successModal">
+        <div class="success-content">
+            <div class="success-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <h2>Your NFT has been created!</h2>
+            <p>Your NFT has been successfully minted on the ZenChain blockchain.</p>
+            
+            <div class="success-actions">
+                <button class="success-btn" id="viewInExploreBtn">VIEW IN EXPLORER</button>
+                <button class="success-btn" id="createAnotherBtn">CREATE ANOTHER NFT</button>
+            </div>
+            
+            <div class="social-share">
+                <a href="https://discord.gg/zenchain" title="Share on Discord" target="_blank">
+                    <i class="fab fa-discord"></i>
+                </a>
+                <a href="https://x.com/zen_chain?t=IzJw9tNH56V69R74kC7wMw&s=09" title="Share on Twitter" target="_blank">
+                    <i class="fab fa-twitter"></i>
+                </a>
+                <a href="https://www.zenchain.io" title="Visit our Website" target="_blank">
+                    <i class="fas fa-globe"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Hero Section -->
+    <section class="hero">
+        <h2>Discover Rare Digital Art on ZenChain</h2>
+        <p>Explore, collect, and sell extraordinary NFTs on the eco-friendly ZenChain blockchain with low gas fees and fast transactions.</p>
+        
+        <div class="collection-filters">
+            <button class="filter-btn active">All</button>
+            <button class="filter-btn">Art</button>
+            <button class="filter-btn">Photography</button>
+            <button class="filter-btn">Collectibles</button>
+            <button class="filter-btn">Trending</button>
+        </div>
+    </section>
+    
+    <!-- NFT Grid -->
+    <div class="nft-grid">
+        <!-- NFT Card 1 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/Gm1dbY35/Gallery-1758375636610.jpg" alt="NFT 1" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Digital Dreams #1</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>10 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 2 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/HxjC693V/Gallery-1758340078955.jpg" alt="NFT 2" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Nature's Beauty #7</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>100 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 3 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/1X5MGvKj/attachment-132460682.jpg" alt="NFT 3" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Abstract Thoughts #3</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>50 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 4 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/jSJc4wzt/attachment-132451849.jpg" alt="NFT 4" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Urban Jungle #12</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>75 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 5 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/fL5fRxhj/attachment-132552545.png" alt="NFT 5" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Cyber Punk #45</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>300 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 6 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/PqWM0g37/attachment-132476985.jpg" alt="NFT 6" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Vintage Memories #8</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>25 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 7 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/mDTS4mKg/attachment-132472771.png" alt="NFT 7" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Future Vision #19</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>150 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+        
+        <!-- NFT Card 8 -->
+        <div class="nft-card">
+            <img src="https://i.postimg.cc/Gm1dbY35/Gallery-1758375636610.jpg" alt="NFT 8" class="nft-image">
+            <div class="nft-info">
+                <h3 class="nft-title">Digital Dreams #2</h3>
+                <div class="nft-price">
+                    <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZTC Token">
+                    <span>90 ZTC</span>
+                </div>
+                <button class="mint-btn">Mint Now</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">
+            <img src="https://i.postimg.cc/Dz7hXbNY/kto72-DAJ-400x400.png" alt="ZenChain Logo">
+            <span>Powered by ZenChain</span>
+        </div>
+        
+        <p>The eco-friendly blockchain for NFT creators and collectors</p>
+        
+        <div class="social-links">
+            <a href="https://discord.gg/zenchain" target="_blank"><i class="fab fa-discord"></i></a>
+            <a href="https://x.com/zen_chain?t=IzJw9tNH56V69R74kC7wMw&s=09" target="_blank"><i class="fab fa-twitter"></i></a>
+            <a href="https://www.zenchain.io" target="_blank"><i class="fas fa-globe"></i></a>
+        </div>
+        
+        <p class="copyright">© 2023 ZenChain NFT Marketplace. All rights reserved.</p>
+    </footer>
+    
+    <script>
+        // Wallet connection modal functionality
+        const connectWalletBtn = document.getElementById('connectWalletBtn');
+        const walletModal = document.getElementById('walletModal');
+        const closeModal = document.getElementById('closeModal');
+        const metamaskOption = document.getElementById('metamaskOption');
+        const blockwalletOption = document.getElementById('blockwalletOption');
+        
+        // Create NFT modal functionality
+        const createNftBtn = document.getElementById('createNftBtn');
+        const createModal = document.getElementById('createModal');
+        const nftForm = document.getElementById('nftForm');
+        
+        // Minting process modal
+        const mintingModal = document.getElementById('mintingModal');
+        
+        // Success modal
+        const successModal = document.getElementById('successModal');
+        const viewInExploreBtn = document.getElementById('viewInExploreBtn');
+        const createAnotherBtn = document.getElementById('createAnotherBtn');
+        
+        connectWalletBtn.addEventListener('click', () => {
+            walletModal.style.display = 'flex';
+        });
+        
+        closeModal.addEventListener('click', () => {
+            walletModal.style.display = 'none';
+        });
+        
+        metamaskOption.addEventListener('click', () => {
+            alert('MetaMask connection functionality would be implemented here');
+            // In a real dApp, this would connect to MetaMask
+            walletModal.style.display = 'none';
+            connectWalletBtn.textContent = 'Connected to MetaMask';
+        });
+        
+        blockwalletOption.addEventListener('click', () => {
+            alert('BlockWallet connection functionality would be implemented here');
+            // In a real dApp, this would connect to BlockWallet
+            walletModal.style.display = 'none';
+            connectWalletBtn.textContent = 'Connected to BlockWallet';
+        });
+        
+        // Create NFT button functionality
+        createNftBtn.addEventListener('click', () => {
+            createModal.style.display = 'flex';
+        });
+        
+        // NFT form submission
+        nftForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            createModal.style.display = 'none';
+            mintingModal.style.display = 'flex';
+            
+            // Simulate minting process
+            setTimeout(() => {
+                mintingModal.style.display = 'none';
+                successModal.style.display = 'flex';
+            }, 3000);
+        });
+        
+        // Success modal buttons
+        viewInExploreBtn.addEventListener('click', () => {
+            alert('This would open the blockchain explorer to view your transaction');
+            successModal.style.display = 'none';
+        });
+        
+        createAnotherBtn.addEventListener('click', () => {
+            successModal.style.display = 'none';
+            createModal.style.display = 'flex';
+        });
+        
+        // Close modals if clicked outside of content
+        window.addEventListener('click', (event) => {
+            if (event.target === walletModal) {
+                walletModal.style.display = 'none';
+            }
+            if (event.target === createModal) {
+                createModal.style.display = 'none';
+            }
+            if (event.target === mintingModal) {
+                mintingModal.style.display = 'none';
+            }
+            if (event.target === successModal) {
+                successModal.style.display = 'none';
+            }
+        });
+        
+        // Filter buttons functionality
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        
+        filterButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                filterButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                
+                // In a real application, this would filter the NFTs
+                alert('Filtering would show ' + button.textContent + ' NFTs');
+            });
+        });
+        
+        // Mint button functionality
+        const mintButtons = document.querySelectorAll('.mint-btn');
+        
+        mintButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const nftTitle = button.parentElement.querySelector('.nft-title').textContent;
+                const nftPrice = button.parentElement.querySelector('.nft-price span').textContent;
+                
+                // Show minting process
+                mintingModal.style.display = 'flex';
+                
+                // Simulate minting process
+                setTimeout(() => {
+                    mintingModal.style.display = 'none';
+                    successModal.style.display = 'flex';
+                    
+                    // Update success message for minting
+                    document.querySelector('.success-content h2').textContent = 'Minting Complete!';
+                    document.querySelector('.success-content p').textContent = `You have successfully minted ${nftTitle} for ${nftPrice}.`;
+                    
+                }, 3000);
+            });
+        });
+    </script>
+</body>
+</html>
