@@ -3,7 +3,7 @@
 A full-featured NFT marketplace built on the ZENCHAIN blockchain. Create, buy, sell, and discover unique digital assets seamlessly.
 
 ## ✨ Key Features
-- 🔐 **Wallet Connect** - Connect with MetaMask, Trust Wallet, etc.
+- 🔐 **Wallet Connect** - Connect with MetaMask, Block Wallet,
 - 🎨 **Mint NFTs** - Turn your digital art into NFTs easily.
 - 💰 **Buy & Sell** - Trade NFTs on our secure marketplace.
 - ⚡ **Low Fees** - Powered by the efficient ZENCHAIN network.
